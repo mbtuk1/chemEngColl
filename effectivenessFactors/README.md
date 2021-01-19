@@ -1,6 +1,6 @@
 # Solution algorithm for non-isothermal effectiveness factors
 
-The python script implements the algorithom proposed by Lee and Kim [1] and was used for the effectiveness factor calculations in [2]. The implementation works, but it is inefficient (especially the root finding of H1 and H2).
+The python script implements the algorithom proposed by Lee and Kim [1] and was used for the effectiveness factor calculations in [2]. The implementation works, but it is inefficient (especially the root finding of H1 and H2). The theoretical background for the calculation of non-isothermal effectiveness factors was introduced by Weisz and Hicks [3].
 
 As an example, Figure 5 of [2] is calculated with the code in this folder:
 ![Temperature profiles](temperatureProfile.png)
@@ -25,3 +25,6 @@ Both implementations can currently only solve effectiveness factors in spherical
 [1] Lee, J., and Kim, DH (2005): An improved shooting method for computation of effectiveness factors in porous catalysts, Chemical Engineering Science, vol. 60(20), pp. 5569-5573, DOI: [10.1016/j.ces.2005.05.027](https://www.doi.org/10.1016/j.ces.2005.05.027).
 
 [2] Bösenhofer, M. and Harasek, M. (2021): Non-isothermal effectiveness factors in thermo-chemical char conversion, Carbon Resources Conversion, in press, DOI: [10.1016/j.crcon.2021.01.004](https://www.doi.org/10.1016/j.crcon.2021.01.004).
+
+[3] Weisz, PB., and Hicks, JS. (1961): The behaviour of porous catalyst particles in view of internal mass and heat diffusion effects, Chemical Engineering Science, vol. 50(24), pp. 3951-3958. DOI: [10.1016/0009-2509(96)81827-6](https://www.doi.org/10.1016/0009-2509(96)81827-6).
+
