@@ -2,7 +2,10 @@
 
 The python script implements the algorithom proposed by Lee and Kim [1] and was used for the effectiveness factor calculations in [2]. The implementation works, but it is inefficient (especially the root finding of H1 and H2). The theoretical background for the calculation of non-isothermal effectiveness factors was introduced by Weisz and Hicks [3].
 
-As an example, Figure 5 of [2] is calculated with the code in this folder:
+As an example, Figure 4 and Figure 5 of [2] is calculated with the code in this folder:
+
+![Effectiveness factor profiles](effectivenessFactorProfiles.png)
+
 ![Temperature profiles](temperatureProfile.png)
 ![Concentration profiles](concentrationProfile.png)
 

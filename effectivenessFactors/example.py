@@ -80,11 +80,11 @@ points = 500
 # Create figures
 fig1=plt.figure()
 ax1=fig1.add_subplot(1,1,1)
-ax1.set_title('Fig. 6 - bottom')
+ax1.set_title('Fig. 5 - bottom')
 
 fig2=plt.figure()
 ax2=fig2.add_subplot(1,1,1)
-ax2.set_title('Fig. 6 - top')
+ax2.set_title('Fig. 5 - top')
 
 # Calculate the concentartion and temperature profiles
 for i, (betai, gammai) in enumerate(zip(beta,gamma)):
@@ -124,11 +124,12 @@ fig2.savefig('temperatureProfile.png',dpi=150)
 print('Creating Figure 4...')
 
 # increase the number of intervalls if solution doesn't look good
+# the figures in the repo were created with 600 points
 thieleM = np.logspace(-3,2,100)
 
 fig3=plt.figure()
 ax3=fig3.add_subplot(1,1,1)
-ax3.set_title('Fig. 7')
+ax3.set_title('Fig. 4')
 
 # determine effectiveness factor profiles
 for i, (betai, gammai) in enumerate(zip(beta,gamma)):
