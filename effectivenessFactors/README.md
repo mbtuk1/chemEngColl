@@ -13,7 +13,11 @@ As an example, Figure 4 and Figure 5 of [2] is calculated with the code in this 
 
 **LeeSolver.py** implements the solver class *nonIsothermal* to solve for non-isothermal effectiveness factors. **example.py** explains how to use the solver class based on Fig. 4 and Fig. 5 of [2].
 
-An analogue solver class for isothermal effectiveness factors (called *isothermal*) based on *scipy solve_ivp* is also in the **LeeSolver.py** file, but there are some issues when passing arguments to the boundary condition function (*bc*). 
+An analogue solver class for isothermal effectiveness factors (called *isothermal*) based on *scipy solve_ivp* is also in the **LeeSolver.py** file. **iso_example.py** explains how to use the isothermal solver. The sample gives the following effectiveness factor and concentration profiles:
+
+![Effectiveness factor profiles](isothermalEffectivenessFactorProfiles.png)
+![Concentration profiles](isothermalConcentrationProfile.png)
+
 
 Both implementations can currently only solve effectiveness factors in spherical particles.
 

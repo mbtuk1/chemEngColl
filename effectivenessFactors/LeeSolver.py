@@ -75,7 +75,8 @@ class nonIsothermal:
 
     def F(self,y,betai,gammai):
         '''
-        Holds the ode system solved for the species concentration profile
+        Holds disturbance function of the ode system solved for the species
+        concentration profile
         '''
         return y*np.exp(gammai*betai*(1.0-y)/(1.0+betai*(1.0-y)))
 
@@ -89,8 +90,7 @@ class nonIsothermal:
         '''
         Holds the ode system solved for the species concentration profile
         '''
-        k = phi
-        return [y[1], -2.0*y[1]/x + k**2.0*self.F(y[0],betai,gammai)]
+        return [y[1], -2.0*y[1]/x + phi**2.0*self.F(y[0],betai,gammai)]
 
     def optH1Func(self,alphai,phi,betai,gammai):
         '''
@@ -374,7 +374,7 @@ class nonIsothermal:
         # return the sorted Thiele modulus, eta arrays
         return phiPlot,etaPlot
 
-"""
+
 ###############################################################################
 # isothermal solver - currently not working because of issues when passing 
 # arguments to the bc class member
@@ -383,7 +383,7 @@ class isothermal:
     '''
     Solver for the isothermal effectiveness factors in spherical particles
     '''
-    def __init__(self,nPoints=500):
+    def __init__(self,order=1,nPoints=500):
         '''
         Parameters
         --------------------------
@@ -393,63 +393,80 @@ class isothermal:
         nPoints - int, number of intervals for determining the intervals
         '''
         self.nPoints = nPoints
-        self.Psi = 1e-9
-        # Think about the option to pass other functions
-        #self.ode = ode
-        #self.bc = bc
-        #self.F = F
+        self.Psi = 1e-6
+        self.order = order
+        self.xinit = [1e-6,1]
+        self.yinit = [[0.1,1.0],[0.0,0.0]]
+        self.phi = 1.0
 
-    def ode(self,x,y,phi):
+
+    def setOrder(self,order):
+        '''
+        Set the reaction order of the system
+        '''
+        self.order = order
+
+
+    def ode(self,x,y,y0,phi):
         '''
         Holds the ode system solved for the species concentration profile
         '''
-        k = phi
         return [y[1], -2.0*y[1]/x + phi**2.0*self.F(y[0])]
+
 
     def F(self,y):
         '''
-        Holds the ode system solved for the species concentration profile
+        Holds disturbance function of the ode system solved for the species
+        concentration profile
         '''
-        return -y
+        return y**self.order
+
+
+    def solve(self,phi,C0=0.2):
+        '''
+        Solve for the function roots to get the C(0) values
+        '''
+        self.phi = phi
+        sol = solve_bvp(lambda x,y,y0: self.ode(x, y, y0, phi), \
+                        self.bc, self.xinit, self.yinit, p=[C0], \
+                        tol=1e-5, bc_tol=1e-5, max_nodes=1e5,verbose=0)
+
+        if sol.success:
+            return sol
+        else:
+            print('error: solving bvp failed!')
+            return sol
+        #    exit()
+
 
     def bc(self,ya,yb,y0):
         '''
-        Holds the ode system solved for the species concentration profile
+        Holds the boundary condition of the system
         '''
-        y2 = -phi**2*F(y0)/6.0
-        return [ya[0]-y0-y2**self.Psi**2.0,ya[1]-2.0*y2*self.Psi,yb[0]-1.0]
+        y2 = -self.phi**2.0*self.F(y0)/6.0
+        return [ya[0]-y0-y2*self.Psi**2.0,ya[1]-2.0*y2*self.Psi,yb[0]-1.0]
 
-    def calcEta(self,C0,phi):
+
+    def calcEta(self,sol):
         '''
         Caluclate the effectiveness factor for the given C0
         or location of C = Cmi
         '''
-        sol = solve_ivp(self.ode,(1e-9,1),[C0,0], \
-                        args=(phi),method='LSODA', \
-                        rtol=1e-10,atol=1e-15,first_step=1e-9, \
-                        dense_output=True)
-
-        if sol.success:
-            x = np.linspace(0,1,self.nPoints)
-            eta = (np.trapz(sol.sol(x)[0]*(x**2.0),x)/np.trapz(1.0*(x**2.0),x))
-            return eta
-        else:
-            print('error: integration failed in eta calculation!')
-            exit()
+        x = np.linspace(self.Psi,1,self.nPoints)
+        eta = (np.trapz(sol.sol(x)[0]*(x**2.0),x) / \
+               np.trapz(1.0*(x**2.0),x))
+        return eta
 
 
     def radialProfiles(self,C0,phi):
         '''
         Calculate the concentration and temperature profile 
         '''
-        sol = solve_ivp(self.ode,(1e-9,1),[C0,0], \
-                        args=(phi),method='LSODA', \
-                        rtol=1e-10,atol=1e-15,first_step=1e-9, \
-                        dense_output=True)
+        sol = self.solve(phi,C0)
 
         if sol.success:
-            x = np.linspace(0,1,self.nPoints)
-            return x,sol.sol(x)
+            x = np.linspace(self.Psi,1,self.nPoints)
+            return x,sol.sol(x)[0]
         else:
             print('error: integration failed in concentration profile calculation!')
             exit()
@@ -463,21 +480,16 @@ class isothermal:
         phis=[]
         elems = len(Thiele)-1
 
-        xinit = [self.Psi,1.0]
-        yinit = [[0.1,1.0],[0.0,0.0]]
-
         for ith,k in enumerate(Thiele):
             progress(ith,elems)
-            res = solve_bvp(self.ode,lambda ya,yb,y0 : self.bc(ya,yb,y0,k), \
-                            xinit,yinit,p=[0.1], \
-                            tol=1e-4, bc_tol=1e-4, max_nodes=1e5,verbose=0)
-            if res.success:
-                x = np.linspace(a,1,61);
-                xinit = x
-                yinit = res.sol(x)
+            
+            sol = self.solve(k)
+            
+            if sol.success:
+                eta=self.calcEta(sol)
                 etas.append(eta)
                 phis.append(k)
 
         return phis, etas
-"""
+
 
